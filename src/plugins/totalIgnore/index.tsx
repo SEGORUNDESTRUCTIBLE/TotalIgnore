@@ -153,12 +153,28 @@ function updateIgnoreStyles() {
     const groupCallGridSelector = callTileSelectors.length
         ? `[class*="tiles__"]:has(${callTileSelectors.join(", ")})`
         : "";
+    const callGridSelectors = [callGridSelector, groupCallGridSelector].filter(Boolean);
+    const centeredLastTileRules = callGridSelectors.flatMap(selector =>
+        Array.from(document.querySelectorAll(selector)).flatMap(grid => {
+            const visibleTileIds = Array.from(grid.querySelectorAll<HTMLElement>("[data-selenium-video-tile]"))
+                .map(tile => tile.getAttribute("data-selenium-video-tile"))
+                .filter((tileId): tileId is string => !!tileId && !ignoredCallTileIds.includes(tileId));
+
+            if (!visibleTileIds.length || visibleTileIds.length % 2 === 0) return [];
+
+            const lastTileSelector = getCallTileSelector(visibleTileIds[visibleTileIds.length - 1]);
+            return [`${selector} > [class*="row_d6271c"] > :has(${lastTileSelector}) { grid-column: 2 / span 2 !important; }`];
+        })
+    );
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }` : "",
+        callGridSelector ? `${callGridSelector} { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : ""
+        callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
+        ...centeredLastTileRules
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");

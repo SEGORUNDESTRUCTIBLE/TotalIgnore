@@ -10,8 +10,9 @@ mutes them when they join a voice channel or call.
 Their local mute state is kept while they are ignored, including across voice
 reconnects, and is restored to its previous value when they are unignored.
 Ignored call and screen-share tiles are removed from the layout so the
-remaining participants reflow into two columns without empty slots, retaining
-Discord's existing tile sizing and spacing. Voice-member rows are hidden at
+remaining participants reflow into two columns without empty slots. If the
+visible count is odd, the final tile is centered in the bottom row. Discord's
+existing tile sizing and spacing are retained. Voice-member rows are hidden at
 their outer draggable wrapper so the sidebar list collapses the row instead
 of reserving an empty slot.
 
