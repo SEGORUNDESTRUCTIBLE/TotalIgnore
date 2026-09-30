@@ -155,9 +155,9 @@ function updateIgnoreStyles() {
         : "";
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: flex !important; flex-wrap: wrap !important; align-content: flex-start !important; justify-content: center !important; }` : "",
+        callGridSelector ? `${callGridSelector} { display: flex !important; flex-wrap: wrap !important; align-content: center !important; align-items: center !important; justify-content: center !important; gap: 8px !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; }` : ""
+        groupCallGridSelector ? `${groupCallGridSelector} { display: flex !important; flex-wrap: wrap !important; align-content: center !important; align-items: center !important; justify-content: center !important; gap: 8px !important; }` : ""
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");

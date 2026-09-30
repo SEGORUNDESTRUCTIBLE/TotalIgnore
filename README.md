@@ -10,7 +10,7 @@ client, and this does not hide a user from Discord or other participants.
 
 ## Easy installation on Windows
 
-Download `TotalIgnore-Setup-1.1.1.exe` from the [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
+Download `TotalIgnore-Setup-1.1.2.exe` from the [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
 and follow the wizard. It installs the complete Vencord build and TotalIgnore
 plugin into Discord Stable, without administrator privileges.
 
