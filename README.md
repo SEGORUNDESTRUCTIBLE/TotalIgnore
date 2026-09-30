@@ -10,16 +10,26 @@ client, and this does not hide a user from Discord or other participants.
 
 ## Easy installation on Windows
 
-Download and extract
-`dist/TotalIgnore-Vencord-1.15.9-Windows.zip`, close Discord, and run
-`Install-TotalIgnore.bat`. Start Discord and enable TotalIgnore in
-**User Settings → Vencord → Plugins**. The ZIP contains a complete Vencord
+Download `TotalIgnore-Setup-1.1.0.exe` from the [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
+and follow the wizard. It installs the complete Vencord build and TotalIgnore
+plugin into Discord Stable, without administrator privileges.
+
+Alternatively, use the ZIP bundle:
+
+Download and extract `dist/TotalIgnore-Vencord-1.15.9-Windows.zip`, close
+Discord, and run `Install-TotalIgnore.bat`. Start Discord and enable TotalIgnore
+in **User Settings → Vencord → Plugins**. The ZIP contains a complete Vencord
 desktop build with the plugin included, its installer, install/uninstall
 launchers, source snapshot, avatar, and applicable license notices.
 
+Uninstall the GUI setup from **Installed apps** in Windows; uninstalling removes
+Vencord from Discord Stable and keeps Vencord's settings.
+
 Vencord is a prerequisite: TotalIgnore is a Vencord plugin, not a standalone
 Discord extension. The all-in-one Windows bundle installs Vencord together
-with TotalIgnore.
+with TotalIgnore. The setup wizard and ZIP are unofficial community builds.
+Windows SmartScreen may warn that the executable is unsigned; only run a
+release downloaded from this repository.
 
 ## Source
 
@@ -28,7 +38,14 @@ The plugin source and supplied creator avatar are in
 that directory to `src/plugins/totalIgnore/`, build Vencord, and install it
 using Vencord's documented development workflow.
 
-The ready-to-install Windows bundle is in `dist/`.
+The ready-to-install Windows setup executable and ZIP are in `dist/`.
+
+Build the GUI setup with Inno Setup 6 after building the standalone Vencord
+bundle:
+
+```powershell
+.\distribution\installer\Build-TotalIgnoreSetup.ps1
+```
 
 ## Credits and license
 
