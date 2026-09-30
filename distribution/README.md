@@ -9,7 +9,7 @@ Discord or Vencord installer.
 ## Install
 
 1. Exit Discord completely, including from the system tray.
-2. Download and run **TotalIgnore-Setup-1.1.15.exe** from the GitHub release.
+2. Download and run **TotalIgnore-Setup-1.1.16.exe** from the GitHub release.
 3. Follow the setup wizard. It installs to your Windows user profile and does
    not need administrator privileges. Setup checks that Discord is closed
    before making changes.

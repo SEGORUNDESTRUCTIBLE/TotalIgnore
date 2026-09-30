@@ -154,7 +154,7 @@ function updateIgnoreStyles() {
         ? `[class*="tiles__"]:has(${callTileSelectors.join(", ")})`
         : "";
     const callGridSelectors = [callGridSelector, groupCallGridSelector].filter(Boolean);
-    const callGridLayoutRules = callGridSelectors.flatMap(selector =>
+    const responsiveCallGridRules = callGridSelectors.flatMap(selector =>
         Array.from(document.querySelectorAll(selector)).flatMap(grid => {
             const visibleTileIds = Array.from(grid.querySelectorAll<HTMLElement>("[data-selenium-video-tile]"))
                 .map(tile => tile.getAttribute("data-selenium-video-tile"))
@@ -163,27 +163,43 @@ function updateIgnoreStyles() {
             if (!visibleTileIds.length) return [];
 
             const gridSelector = `${selector}:has(${visibleTileIds.map(getCallTileSelector).join(", ")})`;
-            const rules = [
-                `${gridSelector} { height: 100% !important; grid-template-rows: repeat(${Math.ceil(visibleTileIds.length / 2)}, minmax(0, 1fr)) !important; }`
+            const wideColumnCount = visibleTileIds.length >= 5 ? 3 : 2;
+            const getResponsiveRules = (columnCount: number) => {
+                const rowCount = Math.ceil(visibleTileIds.length / columnCount);
+                const lastRowCount = visibleTileIds.length % columnCount;
+                const rules = [
+                    `${gridSelector} { grid-template-columns: repeat(${columnCount * 2}, minmax(0, 1fr)) !important; grid-template-rows: repeat(${rowCount}, minmax(0, 1fr)) !important; }`
+                ];
+
+                if (lastRowCount) {
+                    const firstTrack = Math.floor((columnCount * 2 - lastRowCount * 2) / 2) + 1;
+                    for (let index = visibleTileIds.length - lastRowCount; index < visibleTileIds.length; index++) {
+                        const tileSelector = getCallTileSelector(visibleTileIds[index]);
+                        const track = firstTrack + (index - (visibleTileIds.length - lastRowCount)) * 2;
+                        rules.push(`${gridSelector} > [class*="row_d6271c"] > :has(${tileSelector}) { grid-column: ${track} / span 2 !important; }`);
+                    }
+                }
+
+                return rules;
+            };
+
+            return [
+                ...getResponsiveRules(wideColumnCount),
+                `@media (max-width: 1000px) { ${getResponsiveRules(2).join(" ")} }`
             ];
-
-            if (visibleTileIds.length % 2 !== 0) {
-                const lastTileSelector = getCallTileSelector(visibleTileIds[visibleTileIds.length - 1]);
-                rules.push(`${gridSelector} > [class*="row_d6271c"] > :has(${lastTileSelector}) { grid-column: 2 / span 2 !important; }`);
-            }
-
-            return rules;
         })
     );
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        callGridSelector ? `${callGridSelector} { display: grid !important; width: 100% !important; height: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        callGridSelector ? `@media (max-width: 1000px) { ${callGridSelector} { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; width: 100% !important; height: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
-        ...callGridLayoutRules
+        groupCallGridSelector ? `@media (max-width: 1000px) { ${groupCallGridSelector} { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }` : "",
+        ...responsiveCallGridRules
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");
