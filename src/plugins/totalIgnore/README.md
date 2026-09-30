@@ -12,9 +12,10 @@ reconnects, and is restored to its previous value when they are unignored.
 Ignored call and screen-share tiles are removed from the layout so the
 remaining participants reflow into two columns without empty slots. If the
 visible count is odd, the final tile is centered in the bottom row. Discord's
-existing tile sizing and spacing are retained. Voice-member rows are hidden at
-their outer draggable wrapper so the sidebar list collapses the row instead
-of reserving an empty slot.
+existing tile spacing is retained and the grid uses the full call area so the
+tiles and centered bottom row stay aligned to the viewport. Voice-member rows
+are hidden at their outer draggable wrapper so the sidebar list collapses the
+row instead of reserving an empty slot.
 
 This is best-effort client-side filtering, not true invisibility. Discord still
 delivers voice and presence information to the client. Existing messages,

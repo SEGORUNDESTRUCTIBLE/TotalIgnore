@@ -168,10 +168,10 @@ function updateIgnoreStyles() {
     );
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        callGridSelector ? `${callGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
         ...centeredLastTileRules
