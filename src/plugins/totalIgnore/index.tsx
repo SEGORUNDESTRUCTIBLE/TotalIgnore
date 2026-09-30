@@ -155,9 +155,9 @@ function updateIgnoreStyles() {
         : "";
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: flex !important; flex-wrap: wrap !important; align-content: flex-start !important; align-items: center !important; justify-content: center !important; gap: 8px !important; }` : "",
+        callGridSelector ? `${callGridSelector} { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-auto-rows: minmax(0, 1fr) !important; align-content: start !important; align-items: stretch !important; justify-items: stretch !important; gap: 6px !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: flex !important; flex-wrap: wrap !important; align-content: flex-start !important; align-items: center !important; justify-content: center !important; gap: 8px !important; }` : ""
+        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-auto-rows: minmax(0, 1fr) !important; align-content: start !important; align-items: stretch !important; justify-items: stretch !important; gap: 6px !important; }` : ""
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");
