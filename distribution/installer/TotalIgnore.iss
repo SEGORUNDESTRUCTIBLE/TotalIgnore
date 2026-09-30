@@ -1,4 +1,4 @@
-#define AppVersion "1.1.5"
+#define AppVersion "1.1.6"
 #define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\TotalIgnore-Vencord-1.15.9-Windows"
 #define AssetRoot AddBackslash(SourcePath) + "..\..\dist\setup-assets"
 
@@ -102,6 +102,11 @@ begin
 
   if LogText = '' then
     LogText := 'The Vencord installer did not produce diagnostic output.';
+  if Pos('The system cannot find the file specified.', LogText) > 0 then
+    LogText := LogText + #13#10#13#10 +
+      'Discord may still be updating or its newest app folder may be incomplete. ' +
+      'Start Discord and wait for it to finish updating, then exit it completely and retry setup. ' +
+      'If Discord will not start, repair or reinstall Discord first.';
 
   Result :=
     Action + ' (exit code ' + IntToStr(ExitCode) + ').' + #13#10#13#10 +
@@ -124,24 +129,74 @@ begin
     ) and (ExitCode = 0);
 end;
 
+function GetLatestDiscordAppVersion(): string;
+var
+  FindRec: TFindRec;
+  Candidate: string;
+begin
+  Result := '';
+  if FindFirst(ExpandConstant('{localappdata}\Discord\app-*'), FindRec) then
+  begin
+    try
+      repeat
+        Candidate := ExpandConstant('{localappdata}\Discord\' + FindRec.Name + '\resources');
+        if DirExists(Candidate) and (CompareText(FindRec.Name, Result) > 0) then
+          Result := FindRec.Name;
+      until not FindNext(FindRec);
+    finally
+      FindClose(FindRec);
+    end;
+  end;
+end;
+
 function InitializeSetup(): Boolean;
+var
+  LatestAppVersion, LatestAppAsar: string;
 begin
   Result := True;
   if not FileExists(ExpandConstant('{localappdata}\Discord\Update.exe')) then
   begin
-    MsgBox(
+    Log('Setup preflight blocked: Discord Stable was not found.');
+    SuppressibleMsgBox(
       'Discord Stable was not found for this Windows user. Install Discord Stable first, then run this setup again.',
       mbError,
+      MB_OK,
       MB_OK
     );
     Result := False;
   end;
 
+  if Result then
+  begin
+    LatestAppVersion := GetLatestDiscordAppVersion();
+    if LatestAppVersion <> '' then
+    begin
+      LatestAppAsar := ExpandConstant(
+        '{localappdata}\Discord\' + LatestAppVersion + '\resources\app.asar'
+      );
+      if not FileExists(LatestAppAsar) then
+      begin
+        Log('Setup preflight blocked: Discord app archive is missing: ' + LatestAppAsar);
+        SuppressibleMsgBox(
+          'Discord''s newest app folder (' + LatestAppVersion + ') is incomplete: resources\app.asar is missing.' + #13#10#13#10 +
+          'Start Discord and wait for its update to finish, then exit Discord completely and run setup again. ' +
+          'If Discord will not start, repair or reinstall Discord first. No files have been changed.',
+          mbError,
+          MB_OK,
+          MB_OK
+        );
+        Result := False;
+      end;
+    end;
+  end;
+
   if Result and IsDiscordRunning() then
   begin
-    MsgBox(
+    Log('Setup preflight blocked: Discord is still running.');
+    SuppressibleMsgBox(
       'Discord is still running, possibly in the system tray. Exit Discord completely, then run this setup again. No files have been changed.',
       mbError,
+      MB_OK,
       MB_OK
     );
     Result := False;

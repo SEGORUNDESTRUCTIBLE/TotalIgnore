@@ -11,13 +11,16 @@ client, and this does not hide a user from Discord or other participants.
 ## Easy installation on Windows
 
 Exit Discord completely, including from the system tray, then download
-`TotalIgnore-Setup-1.1.5.exe` from the
+`TotalIgnore-Setup-1.1.6.exe` from the
 [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
 and follow the wizard. Setup checks that Discord is closed before changing
 files. It installs the complete Vencord build and TotalIgnore plugin into
 Discord Stable, without administrator privileges.
 If patching fails, the setup error dialog includes diagnostic output to share
 when asking for help.
+If setup reports that Discord's newest app folder is incomplete, launch
+Discord, let its update finish, exit Discord completely, and then rerun setup.
+Repair or reinstall Discord first if it will not start.
 
 Alternatively, use the ZIP bundle:
 
