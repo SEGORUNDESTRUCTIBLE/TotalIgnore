@@ -8,10 +8,11 @@ Discord or Vencord installer.
 
 ## Install
 
-1. Download and run **TotalIgnore-Setup-1.1.2.exe** from the GitHub release.
-2. Follow the setup wizard. It installs to your Windows user profile and does
-   not need administrator privileges.
-3. Close Discord if prompted and allow setup to patch Discord Stable.
+1. Exit Discord completely, including from the system tray.
+2. Download and run **TotalIgnore-Setup-1.1.3.exe** from the GitHub release.
+3. Follow the setup wizard. It installs to your Windows user profile and does
+   not need administrator privileges. Setup checks that Discord is closed
+   before making changes.
 4. Start Discord. Open **User Settings → Vencord → Plugins**, enable
    **TotalIgnore**, and use **Ignore user** from a person's context menu or add
    their ID in the plugin settings.

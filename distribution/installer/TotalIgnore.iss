@@ -1,4 +1,4 @@
-#define AppVersion "1.1.2"
+#define AppVersion "1.1.3"
 #define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\TotalIgnore-Vencord-1.15.9-Windows"
 #define AssetRoot AddBackslash(SourcePath) + "..\..\dist\setup-assets"
 
@@ -81,6 +81,21 @@ begin
   end;
 end;
 
+function IsDiscordRunning(): Boolean;
+var
+  ExitCode: Integer;
+begin
+  Result :=
+    Exec(
+      ExpandConstant('{sys}\cmd.exe'),
+      '/C tasklist /FI "IMAGENAME eq Discord.exe" /NH | find /I "Discord.exe" >nul',
+      '',
+      SW_HIDE,
+      ewWaitUntilTerminated,
+      ExitCode
+    ) and (ExitCode = 0);
+end;
+
 function InitializeSetup(): Boolean;
 begin
   Result := True;
@@ -88,6 +103,16 @@ begin
   begin
     MsgBox(
       'Discord Stable was not found for this Windows user. Install Discord Stable first, then run this setup again.',
+      mbError,
+      MB_OK
+    );
+    Result := False;
+  end;
+
+  if Result and IsDiscordRunning() then
+  begin
+    MsgBox(
+      'Discord is still running, possibly in the system tray. Exit Discord completely, then run this setup again. No files have been changed.',
       mbError,
       MB_OK
     );
@@ -113,6 +138,17 @@ end;
 
 function InitializeUninstall(): Boolean;
 begin
+  Result := False;
+  if IsDiscordRunning() then
+  begin
+    MsgBox(
+      'Discord is still running, possibly in the system tray. Exit Discord completely, then run the uninstaller again.',
+      mbError,
+      MB_OK
+    );
+    Exit;
+  end;
+
   Result := MsgBox(
     'This will remove Vencord from Discord Stable and uninstall TotalIgnore. Your Vencord settings are kept.',
     mbConfirmation,
