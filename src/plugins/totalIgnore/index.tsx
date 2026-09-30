@@ -165,10 +165,9 @@ function updateIgnoreStyles() {
             const gridSelector = `${selector}:has(${visibleTileIds.map(getCallTileSelector).join(", ")})`;
             const wideColumnCount = visibleTileIds.length >= 5 ? 3 : 2;
             const getResponsiveRules = (columnCount: number) => {
-                const rowCount = Math.ceil(visibleTileIds.length / columnCount);
                 const lastRowCount = visibleTileIds.length % columnCount;
                 const rules = [
-                    `${gridSelector} { grid-template-columns: repeat(${columnCount * 2}, minmax(0, 1fr)) !important; grid-template-rows: repeat(${rowCount}, minmax(0, 1fr)) !important; }`
+                    `${gridSelector} { grid-template-columns: repeat(${columnCount * 2}, minmax(0, 1fr)) !important; grid-auto-rows: auto !important; align-content: start !important; }`
                 ];
 
                 if (lastRowCount) {
@@ -191,11 +190,11 @@ function updateIgnoreStyles() {
     );
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: grid !important; width: 100% !important; height: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        callGridSelector ? `${callGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; grid-auto-rows: auto !important; align-content: start !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
         callGridSelector ? `@media (max-width: 1000px) { ${callGridSelector} { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; width: 100% !important; height: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; grid-auto-rows: auto !important; align-content: start !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
         groupCallGridSelector ? `@media (max-width: 1000px) { ${groupCallGridSelector} { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }` : "",
