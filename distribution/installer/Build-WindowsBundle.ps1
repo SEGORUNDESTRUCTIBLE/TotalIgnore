@@ -102,7 +102,7 @@ try {
         } finally {
             $reader.Dispose()
         }
-        if (!$readme.Contains("TotalIgnore-Setup-1.1.17.exe")) {
+        if (!$readme.Contains("TotalIgnore-Setup-1.1.18.exe")) {
             throw "Bundle instructions do not link to the GUI setup"
         }
     } finally {

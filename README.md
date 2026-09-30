@@ -11,7 +11,7 @@ client, and this does not hide a user from Discord or other participants.
 ## Easy installation on Windows
 
 Exit Discord completely, including from the system tray, then download
-`TotalIgnore-Setup-1.1.17.exe` from the
+`TotalIgnore-Setup-1.1.18.exe` from the
 [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
 and follow the wizard. Setup checks that Discord is closed before changing
 files. It installs the complete Vencord build and TotalIgnore plugin into
