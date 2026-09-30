@@ -153,11 +153,25 @@ function updateIgnoreStyles() {
     const groupCallGridSelector = callTileSelectors.length
         ? `[class*="tiles__"]:has(${callTileSelectors.join(", ")})`
         : "";
+    const compactCallGridStyle = [
+        "display: grid !important",
+        "grid-template-columns: repeat(2, minmax(0, 1fr)) !important",
+        "grid-auto-rows: minmax(0, 1fr) !important",
+        "width: 100% !important",
+        "height: 100% !important",
+        "align-content: stretch !important",
+        "align-items: stretch !important",
+        "justify-content: stretch !important",
+        "justify-items: stretch !important",
+        "gap: 6px !important"
+    ].join("; ");
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-auto-rows: minmax(0, 1fr) !important; align-content: start !important; align-items: stretch !important; justify-items: stretch !important; gap: 6px !important; }` : "",
+        callGridSelector ? `${callGridSelector} { ${compactCallGridStyle}; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-auto-rows: minmax(0, 1fr) !important; align-content: start !important; align-items: stretch !important; justify-items: stretch !important; gap: 6px !important; }` : ""
+        callGridSelector ? `${callGridSelector} [class*="wrapper__"], ${callGridSelector} [data-selenium-video-tile] { width: 100% !important; height: 100% !important; min-width: 0 !important; max-width: none !important; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} { ${compactCallGridStyle}; }` : "",
+        groupCallGridSelector ? `${groupCallGridSelector} [class*="wrapper__"], ${groupCallGridSelector} [data-selenium-video-tile] { width: 100% !important; height: 100% !important; min-width: 0 !important; max-width: none !important; }` : ""
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");

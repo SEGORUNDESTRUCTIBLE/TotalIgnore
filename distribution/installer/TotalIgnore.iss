@@ -1,4 +1,4 @@
-#define AppVersion "1.1.7"
+#define AppVersion "1.1.8"
 #define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\TotalIgnore-Vencord-1.15.9-Windows"
 #define AssetRoot AddBackslash(SourcePath) + "..\..\dist\setup-assets"
 
