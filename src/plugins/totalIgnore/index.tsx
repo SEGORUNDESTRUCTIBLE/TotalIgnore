@@ -147,16 +147,8 @@ function updateIgnoreStyles() {
         })
     ];
 
-    const callGridSelector = callTileSelectors.length
-        ? `[class*="videoGrid"] [role="list"]:has(${callTileSelectors.join(", ")})`
-        : "";
-    const groupCallGridSelector = callTileSelectors.length
-        ? `[class*="tiles__"]:has(${callTileSelectors.join(", ")})`
-        : "";
     const rules = [
-        selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
-        callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : ""
+        selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : ""
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");

@@ -5,7 +5,7 @@ $releaseZip = Join-Path $root "dist\TotalIgnore-Vencord-1.15.9-Windows.zip"
 $payloadRoot = Join-Path $root "dist\setup-payload"
 $assetRoot = Join-Path $root "dist\setup-assets"
 $payload = Join-Path $payloadRoot "TotalIgnore-Vencord-1.15.9-Windows"
-$output = Join-Path $root "dist\TotalIgnore-Setup-1.1.10.exe"
+$output = Join-Path $root "dist\TotalIgnore-Setup-1.1.11.exe"
 $compiler = Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"
 $avatarPath = Join-Path $root "src\plugins\totalIgnore\avatar.png"
 
