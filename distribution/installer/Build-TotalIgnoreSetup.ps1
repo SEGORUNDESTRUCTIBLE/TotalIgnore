@@ -5,7 +5,7 @@ $releaseZip = Join-Path $root "dist\TotalIgnore-Vencord-1.15.9-Windows.zip"
 $payloadRoot = Join-Path $root "dist\setup-payload"
 $assetRoot = Join-Path $root "dist\setup-assets"
 $payload = Join-Path $payloadRoot "TotalIgnore-Vencord-1.15.9-Windows"
-$output = Join-Path $root "dist\TotalIgnore-Setup-1.1.0.exe"
+$output = Join-Path $root "dist\TotalIgnore-Setup-1.1.1.exe"
 $compiler = Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"
 $avatarPath = Join-Path $root "src\plugins\totalIgnore\avatar.png"
 
@@ -48,6 +48,132 @@ try {
     Add-Type -AssemblyName System.Drawing
     $original = [System.Drawing.Image]::FromFile($avatarPath)
     try {
+        $iconPath = Join-Path $assetRoot "TotalIgnore.ico"
+        $iconSizes = @(16, 24, 32, 48, 64, 128, 256)
+        $iconFrames = [System.Collections.Generic.List[byte[]]]::new()
+        foreach ($size in $iconSizes) {
+            $frame = [System.Drawing.Bitmap]::new(
+                $size,
+                $size,
+                [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
+            )
+            try {
+                $frameGraphics = [System.Drawing.Graphics]::FromImage($frame)
+                try {
+                    $frameGraphics.Clear([System.Drawing.Color]::Transparent)
+                    $frameGraphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+                    $frameGraphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
+                    $frameGraphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+                    $frameGraphics.DrawImage($original, 0, 0, $size, $size)
+
+                    $rectangle = [System.Drawing.Rectangle]::new(0, 0, $size, $size)
+                    $bitmapData = $frame.LockBits(
+                        $rectangle,
+                        [System.Drawing.Imaging.ImageLockMode]::ReadOnly,
+                        [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
+                    )
+                    $frameStream = [System.IO.MemoryStream]::new()
+                    $frameWriter = [System.IO.BinaryWriter]::new($frameStream)
+                    try {
+                        $andMaskStride = [int]([Math]::Ceiling($size / 32.0) * 4)
+                        $pixelDataLength = $size * $size * 4
+                        $maskDataLength = $andMaskStride * $size
+
+                        $frameWriter.Write([UInt32]40)
+                        $frameWriter.Write([Int32]$size)
+                        $frameWriter.Write([Int32]($size * 2))
+                        $frameWriter.Write([UInt16]1)
+                        $frameWriter.Write([UInt16]32)
+                        $frameWriter.Write([UInt32]0)
+                        $frameWriter.Write([UInt32]($pixelDataLength + $maskDataLength))
+                        $frameWriter.Write([Int32]0)
+                        $frameWriter.Write([Int32]0)
+                        $frameWriter.Write([UInt32]0)
+                        $frameWriter.Write([UInt32]0)
+
+                        $row = [byte[]]::new($size * 4)
+                        for ($y = $size - 1; $y -ge 0; $y--) {
+                            $rowAddress = [IntPtr]::Add($bitmapData.Scan0, $y * $bitmapData.Stride)
+                            [System.Runtime.InteropServices.Marshal]::Copy($rowAddress, $row, 0, $row.Length)
+                            $frameWriter.Write($row)
+                        }
+
+                        $frameWriter.Write([byte[]]::new($maskDataLength))
+                        $frameWriter.Flush()
+                        $iconFrames.Add($frameStream.ToArray())
+                    } finally {
+                        $frameWriter.Dispose()
+                        $frameStream.Dispose()
+                        $frame.UnlockBits($bitmapData)
+                    }
+                } finally {
+                    $frameGraphics.Dispose()
+                }
+            } finally {
+                $frame.Dispose()
+            }
+        }
+
+        $iconStream = [System.IO.File]::Create($iconPath)
+        $writer = [System.IO.BinaryWriter]::new($iconStream)
+        try {
+            $writer.Write([UInt16]0)
+            $writer.Write([UInt16]1)
+            $writer.Write([UInt16]$iconFrames.Count)
+
+            $imageOffset = 6 + (16 * $iconFrames.Count)
+            for ($index = 0; $index -lt $iconFrames.Count; $index++) {
+                $size = $iconSizes[$index]
+                $frameBytes = $iconFrames[$index]
+                $dimension = if ($size -eq 256) { [byte]0 } else { [byte]$size }
+                $writer.Write($dimension)
+                $writer.Write($dimension)
+                $writer.Write([byte]0)
+                $writer.Write([byte]0)
+                $writer.Write([UInt16]1)
+                $writer.Write([UInt16]32)
+                $writer.Write([UInt32]$frameBytes.Length)
+                $writer.Write([UInt32]$imageOffset)
+                $imageOffset += $frameBytes.Length
+            }
+
+            foreach ($frameBytes in $iconFrames) {
+                $writer.Write($frameBytes)
+            }
+        } finally {
+            $writer.Dispose()
+            $iconStream.Dispose()
+        }
+
+        $iconBytes = [System.IO.File]::ReadAllBytes($iconPath)
+        $expectedIconBytes = 6 + (16 * $iconSizes.Count) + (($iconFrames | ForEach-Object Length | Measure-Object -Sum).Sum)
+        if ($iconBytes.Length -ne $expectedIconBytes) {
+            throw "Generated icon has an invalid length: $($iconBytes.Length)"
+        }
+        if ([BitConverter]::ToUInt16($iconBytes, 0) -ne 0 -or
+            [BitConverter]::ToUInt16($iconBytes, 2) -ne 1 -or
+            [BitConverter]::ToUInt16($iconBytes, 4) -ne $iconSizes.Count) {
+            throw "Generated icon header is invalid"
+        }
+        for ($index = 0; $index -lt $iconSizes.Count; $index++) {
+            $entryOffset = 6 + (16 * $index)
+            $expectedDimension = if ($iconSizes[$index] -eq 256) { 0 } else { $iconSizes[$index] }
+            if ($iconBytes[$entryOffset] -ne $expectedDimension -or
+                $iconBytes[$entryOffset + 1] -ne $expectedDimension) {
+                throw "Generated icon frame $index has invalid dimensions"
+            }
+
+            $frameOffset = [BitConverter]::ToUInt32($iconBytes, $entryOffset + 12)
+            $headerSize = [BitConverter]::ToUInt32($iconBytes, $frameOffset)
+            $frameWidth = [BitConverter]::ToInt32($iconBytes, $frameOffset + 4)
+            $frameHeight = [BitConverter]::ToInt32($iconBytes, $frameOffset + 8)
+            if ($headerSize -ne 40 -or
+                $frameWidth -ne $iconSizes[$index] -or
+                $frameHeight -ne ($iconSizes[$index] * 2)) {
+                throw "Generated icon frame $index has invalid bitmap data"
+            }
+        }
+
         $avatar = [System.Drawing.Bitmap]::new(192, 192, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
         try {
             $graphics = [System.Drawing.Graphics]::FromImage($avatar)
@@ -61,24 +187,6 @@ try {
                 $graphics.DrawImage($original, [int]((192 - $width) / 2), [int]((192 - $height) / 2), $width, $height)
             } finally {
                 $graphics.Dispose()
-            }
-
-            $iconPath = Join-Path $assetRoot "TotalIgnore.ico"
-            $iconStream = [System.IO.File]::Create($iconPath)
-            try {
-                $bitmap = [System.Drawing.Bitmap]::new($avatar, 256, 256)
-                try {
-                    $icon = [System.Drawing.Icon]::FromHandle($bitmap.GetHicon())
-                    try {
-                        $icon.Save($iconStream)
-                    } finally {
-                        $icon.Dispose()
-                    }
-                } finally {
-                    $bitmap.Dispose()
-                }
-            } finally {
-                $iconStream.Dispose()
             }
 
             $sidePath = Join-Path $assetRoot "WizardSide.bmp"
