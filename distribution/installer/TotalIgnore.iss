@@ -1,4 +1,4 @@
-#define AppVersion "1.1.4"
+#define AppVersion "1.1.5"
 #define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\TotalIgnore-Vencord-1.15.9-Windows"
 #define AssetRoot AddBackslash(SourcePath) + "..\..\dist\setup-assets"
 
@@ -60,18 +60,23 @@ end;
 
 function RunVencordInstaller(const Parameters: string; var ExitCode: Integer): Boolean;
 var
-  OldDataDir, OldDevInstall: string;
+  OldDataDir, OldDevInstall, InstallerPath, LogPath, CommandLine: string;
 begin
   OldDataDir := GetEnv('VENCORD_USER_DATA_DIR');
   OldDevInstall := GetEnv('VENCORD_DEV_INSTALL');
+  InstallerPath := ExpandConstant('{app}\dist\Installer\VencordInstallerCli.exe');
+  LogPath := ExpandConstant('{tmp}\TotalIgnore-VencordInstaller.log');
+  DeleteFile(LogPath);
+  CommandLine :=
+    '/D /S /C ""' + InstallerPath + '" ' + Parameters + ' -debug > "' + LogPath + '" 2>&1"';
   SetEnvironmentVariable('VENCORD_USER_DATA_DIR', ExpandConstant('{app}'));
   SetEnvironmentVariable('VENCORD_DEV_INSTALL', '1');
   try
     Result := Exec(
-      ExpandConstant('{app}\dist\Installer\VencordInstallerCli.exe'),
-      Parameters,
+      ExpandConstant('{sys}\cmd.exe'),
+      CommandLine,
       ExpandConstant('{app}'),
-      SW_SHOW,
+      SW_HIDE,
       ewWaitUntilTerminated,
       ExitCode
     );
@@ -79,6 +84,29 @@ begin
     RestoreEnvironmentVariable('VENCORD_USER_DATA_DIR', OldDataDir);
     RestoreEnvironmentVariable('VENCORD_DEV_INSTALL', OldDevInstall);
   end;
+end;
+
+function GetVencordInstallerFailureMessage(const Action: string; ExitCode: Integer): string;
+var
+  LogPath, LogText: string;
+  LogContents: AnsiString;
+begin
+  LogPath := ExpandConstant('{tmp}\TotalIgnore-VencordInstaller.log');
+  LogContents := '';
+  if FileExists(LogPath) then
+    LoadStringFromFile(LogPath, LogContents);
+
+  LogText := LogContents;
+  if Length(LogText) > 5000 then
+    LogText := Copy(LogText, Length(LogText) - 4999, 5000);
+
+  if LogText = '' then
+    LogText := 'The Vencord installer did not produce diagnostic output.';
+
+  Result :=
+    Action + ' (exit code ' + IntToStr(ExitCode) + ').' + #13#10#13#10 +
+    'Diagnostic output:' + #13#10 + LogText + #13#10#13#10 +
+    'The full log is at:' + #13#10 + LogPath;
 end;
 
 function IsDiscordRunning(): Boolean;
@@ -129,10 +157,7 @@ begin
     if not RunVencordInstaller('-install -branch stable', ExitCode) then
       RaiseException('Could not start the Vencord installer. Close Discord and try again.');
     if ExitCode <> 0 then
-      RaiseException(
-        'Vencord could not patch Discord Stable (exit code ' + IntToStr(ExitCode) +
-        '). Make sure Discord is fully closed, then run the setup again.'
-      );
+      RaiseException(GetVencordInstallerFailureMessage('Vencord could not patch Discord Stable', ExitCode));
   end;
 end;
 
@@ -165,9 +190,6 @@ begin
     if not RunVencordInstaller('-uninstall -branch stable', ExitCode) then
       RaiseException('Could not start the Vencord uninstaller. Close Discord and try again.');
     if ExitCode <> 0 then
-      RaiseException(
-        'Vencord could not be removed from Discord Stable (exit code ' +
-        IntToStr(ExitCode) + '). Close Discord and run the uninstaller again.'
-      );
+      RaiseException(GetVencordInstallerFailureMessage('Vencord could not be removed from Discord Stable', ExitCode));
   end;
 end;
