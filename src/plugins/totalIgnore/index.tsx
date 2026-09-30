@@ -154,16 +154,25 @@ function updateIgnoreStyles() {
         ? `[class*="tiles__"]:has(${callTileSelectors.join(", ")})`
         : "";
     const callGridSelectors = [callGridSelector, groupCallGridSelector].filter(Boolean);
-    const centeredLastTileRules = callGridSelectors.flatMap(selector =>
+    const callGridLayoutRules = callGridSelectors.flatMap(selector =>
         Array.from(document.querySelectorAll(selector)).flatMap(grid => {
             const visibleTileIds = Array.from(grid.querySelectorAll<HTMLElement>("[data-selenium-video-tile]"))
                 .map(tile => tile.getAttribute("data-selenium-video-tile"))
                 .filter((tileId): tileId is string => !!tileId && !ignoredCallTileIds.includes(tileId));
 
-            if (!visibleTileIds.length || visibleTileIds.length % 2 === 0) return [];
+            if (!visibleTileIds.length) return [];
 
-            const lastTileSelector = getCallTileSelector(visibleTileIds[visibleTileIds.length - 1]);
-            return [`${selector} > [class*="row_d6271c"] > :has(${lastTileSelector}) { grid-column: 2 / span 2 !important; }`];
+            const gridSelector = `${selector}:has(${visibleTileIds.map(getCallTileSelector).join(", ")})`;
+            const rules = [
+                `${gridSelector} { height: 100% !important; grid-template-rows: repeat(${Math.ceil(visibleTileIds.length / 2)}, minmax(0, 1fr)) !important; }`
+            ];
+
+            if (visibleTileIds.length % 2 !== 0) {
+                const lastTileSelector = getCallTileSelector(visibleTileIds[visibleTileIds.length - 1]);
+                rules.push(`${gridSelector} > [class*="row_d6271c"] > :has(${lastTileSelector}) { grid-column: 2 / span 2 !important; }`);
+            }
+
+            return rules;
         })
     );
     const rules = [
@@ -174,7 +183,7 @@ function updateIgnoreStyles() {
         groupCallGridSelector ? `${groupCallGridSelector} { display: grid !important; width: 100% !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         groupCallGridSelector ? `${groupCallGridSelector} > [class*="row_d6271c"] > * { grid-column: span 2 !important; }` : "",
-        ...centeredLastTileRules
+        ...callGridLayoutRules
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");
