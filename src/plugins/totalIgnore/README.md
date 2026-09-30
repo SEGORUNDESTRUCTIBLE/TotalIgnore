@@ -10,9 +10,10 @@ mutes them when they join a voice channel or call.
 Their local mute state is kept while they are ignored, including across voice
 reconnects, and is restored to its previous value when they are unignored.
 Ignored call and screen-share tiles are removed from the layout so the
-remaining participants reflow without empty slots. Voice-member rows are
-hidden at their outer draggable wrapper so the sidebar list collapses the row
-instead of reserving an empty slot.
+remaining participants reflow into two columns without empty slots, retaining
+Discord's existing tile sizing and spacing. Voice-member rows are hidden at
+their outer draggable wrapper so the sidebar list collapses the row instead
+of reserving an empty slot.
 
 This is best-effort client-side filtering, not true invisibility. Discord still
 delivers voice and presence information to the client. Existing messages,
