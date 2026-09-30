@@ -115,11 +115,33 @@ function getIgnoredCallTileIds(ignoredUserIds: string[]) {
     return Array.from(tileIds);
 }
 
+function getVisibleCallTileCount(hiddenTileIds: Set<string>) {
+    const tileIds = new Set<string>();
+    for (const tile of document.querySelectorAll<HTMLElement>("[data-selenium-video-tile]")) {
+        const tileId = tile.dataset.seleniumVideoTile;
+        if (tileId && !hiddenTileIds.has(tileId) && tile.getClientRects().length > 0)
+            tileIds.add(tileId);
+    }
+
+    return tileIds.size;
+}
+
+function getCallGridColumns(count: number) {
+    if (count <= 2) return 1;
+    if (count <= 6) return 2;
+    if (count <= 12) return 3;
+    return Math.min(4, Math.ceil(Math.sqrt(count)));
+}
+
 function updateIgnoreStyles() {
     if (!styleElement) return;
 
     const ignoredUserIds = Array.from(getIgnoredUserIds());
     const ignoredCallTileIds = getIgnoredCallTileIds(ignoredUserIds);
+    const hiddenTileIds = new Set(ignoredCallTileIds);
+    const visibleTileCount = getVisibleCallTileCount(hiddenTileIds);
+    const callGridColumns = getCallGridColumns(visibleTileCount);
+    const singleColumnGrid = callGridColumns === 1;
     const callTileSelectors = ignoredCallTileIds.map(getCallTileSelector);
     const selectors = [
         ...ignoredCallTileIds.flatMap(tileId => [
@@ -155,23 +177,33 @@ function updateIgnoreStyles() {
         : "";
     const compactCallGridStyle = [
         "display: grid !important",
-        "grid-template-columns: repeat(2, minmax(0, 1fr)) !important",
+        `grid-template-columns: ${singleColumnGrid ? "minmax(0, 576px)" : `repeat(${callGridColumns}, minmax(0, 1fr))`} !important`,
         "grid-auto-rows: minmax(0, 1fr) !important",
         "width: 100% !important",
         "height: 100% !important",
-        "align-content: stretch !important",
+        `max-width: ${singleColumnGrid ? "576px" : "none"} !important`,
+        "margin-inline: auto !important",
+        "align-content: start !important",
         "align-items: stretch !important",
-        "justify-content: stretch !important",
+        `justify-content: ${singleColumnGrid ? "center" : "stretch"} !important`,
         "justify-items: stretch !important",
         "gap: 6px !important"
     ].join("; ");
+    const lastSingleTileStyle = "grid-column: 1 / -1 !important; width: calc((100% - " +
+        `${Math.max(0, callGridColumns - 1) * 6}px) / ${callGridColumns}) !important; justify-self: center !important;`;
     const rules = [
         selectors.length ? `${selectors.join(",\n")} { display: none !important; }` : "",
         callGridSelector ? `${callGridSelector} { ${compactCallGridStyle}; }` : "",
         callGridSelector ? `${callGridSelector} > [class*="row_d6271c"] { display: contents !important; }` : "",
         callGridSelector ? `${callGridSelector} [class*="wrapper__"], ${callGridSelector} [data-selenium-video-tile] { width: 100% !important; height: 100% !important; min-width: 0 !important; max-width: none !important; }` : "",
+        callGridSelector && !singleColumnGrid && visibleTileCount % callGridColumns === 1
+            ? `${callGridSelector} > [class*="row_d6271c"]:last-child:has(> :only-child) > :only-child { ${lastSingleTileStyle} }`
+            : "",
         groupCallGridSelector ? `${groupCallGridSelector} { ${compactCallGridStyle}; }` : "",
-        groupCallGridSelector ? `${groupCallGridSelector} [class*="wrapper__"], ${groupCallGridSelector} [data-selenium-video-tile] { width: 100% !important; height: 100% !important; min-width: 0 !important; max-width: none !important; }` : ""
+        groupCallGridSelector ? `${groupCallGridSelector} [class*="wrapper__"], ${groupCallGridSelector} [data-selenium-video-tile] { width: 100% !important; height: 100% !important; min-width: 0 !important; max-width: none !important; }` : "",
+        groupCallGridSelector && !singleColumnGrid && visibleTileCount % callGridColumns === 1
+            ? `${groupCallGridSelector} > :last-child:has(> :only-child) > :only-child { ${lastSingleTileStyle} }`
+            : ""
     ];
 
     styleElement.textContent = rules.filter(Boolean).join("\n");
