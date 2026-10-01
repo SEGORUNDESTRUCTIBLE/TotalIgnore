@@ -1,0 +1,73 @@
+name: Publish macOS bundle
+
+on:
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: Existing TotalIgnore release tag to update
+                required: true
+                type: string
+
+permissions:
+    contents: write
+
+jobs:
+    Publish:
+        if: github.repository == 'SEGORUNDESTRUCTIBLE/TotalIgnore'
+        runs-on: macos-14
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Verify target release
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  RELEASE_TAG: ${{ inputs.tag }}
+              run: gh release view "$RELEASE_TAG" >/dev/null
+
+            - uses: actions/checkout@v7
+              with:
+                  repository: Vendicated/Vencord
+                  ref: v1.15.9
+                  path: Vencord
+
+            - uses: pnpm/action-setup@v6
+              with:
+                  version: 11.9.0
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: pnpm
+                  cache-dependency-path: Vencord/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: Vencord
+              run: pnpm install --frozen-lockfile
+
+            - name: Build Vencord with TotalIgnore
+              working-directory: Vencord
+              run: |
+                  mkdir -p src/plugins/totalIgnore
+                  cp -R "$GITHUB_WORKSPACE/src/plugins/totalIgnore/." src/plugins/totalIgnore/
+                  pnpm build --standalone
+
+            - name: Download the macOS Vencord installer
+              working-directory: Vencord
+              run: |
+                  mkdir -p dist/Installer
+                  curl --fail --location --retry 3 \
+                      https://github.com/Vencord/Installer/releases/latest/download/VencordInstallerCli-darwin \
+                      --output dist/Installer/VencordInstallerCli-darwin
+                  chmod +x dist/Installer/VencordInstallerCli-darwin
+
+            - name: Package macOS bundle
+              run: bash distribution/installer/Build-MacBundle.sh "$GITHUB_WORKSPACE/Vencord"
+
+            - name: Upload bundle to the existing release
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  RELEASE_TAG: ${{ inputs.tag }}
+              run: |
+                  gh release upload "$RELEASE_TAG" dist/TotalIgnore-Vencord-1.15.9-macOS.zip --clobber
