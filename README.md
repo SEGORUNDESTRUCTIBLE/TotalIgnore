@@ -33,6 +33,24 @@ launchers, source snapshot, avatar, and applicable license notices.
 Uninstall the GUI setup from **Installed apps** in Windows; uninstalling removes
 Vencord from Discord Stable and keeps Vencord's settings.
 
+## Installation on macOS
+
+Download
+[`TotalIgnore-Vencord-1.15.9-macOS.zip`](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest/download/TotalIgnore-Vencord-1.15.9-macOS.zip)
+from the latest release and extract it. Quit Discord completely, then open
+Terminal in the extracted folder and run:
+
+```sh
+bash ./Install-TotalIgnore.command
+```
+
+Start Discord and enable TotalIgnore in **User Settings → Vencord → Plugins**.
+To uninstall, quit Discord and run `bash ./Uninstall-TotalIgnore.command`.
+This removes Vencord from Discord Stable and keeps Vencord's settings.
+
+The macOS bundle is an unsigned community build. Only run it if you trust this
+repository.
+
 Vencord is a prerequisite: TotalIgnore is a Vencord plugin, not a standalone
 Discord extension. The all-in-one Windows bundle installs Vencord together
 with TotalIgnore. The setup wizard and ZIP are unofficial community builds.
@@ -46,7 +64,8 @@ The plugin source and supplied creator avatar are in
 that directory to `src/plugins/totalIgnore/`, build Vencord, and install it
 using Vencord's documented development workflow.
 
-The ready-to-install Windows setup executable and ZIP are in `dist/`.
+The ready-to-install Windows setup executable and ZIP and macOS ZIP are in
+`dist/` and the latest GitHub release.
 
 Build the GUI setup with Inno Setup 6 after building the standalone Vencord
 bundle:
