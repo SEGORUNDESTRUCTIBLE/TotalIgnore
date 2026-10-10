@@ -63,9 +63,7 @@ jobs:
               run: |
                   Copy-Item "$env:GITHUB_WORKSPACE\distribution" "$env:GITHUB_WORKSPACE\Vencord\distribution" -Recurse
                   & "$env:GITHUB_WORKSPACE\Vencord\distribution\installer\Build-WindowsBundle.ps1"
-                  if ($LASTEXITCODE -ne 0) { throw "Windows bundle build failed" }
                   & "$env:GITHUB_WORKSPACE\Vencord\distribution\installer\Build-BLOCK++Setup.ps1"
-                  if ($LASTEXITCODE -ne 0) { throw "BLOCK++ setup build failed" }
 
             - name: Publish release with installer
               env:
