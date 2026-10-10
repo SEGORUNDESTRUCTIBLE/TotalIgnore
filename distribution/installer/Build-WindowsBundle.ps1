@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$stage = Join-Path $root "distribution\TotalIgnore-Vencord-1.15.9-Windows"
-$archive = Join-Path $root "dist\TotalIgnore-Vencord-1.15.9-Windows.zip"
+$stage = Join-Path $root "distribution\BLOCK++++-Vencord-1.15.9-Windows"
+$archive = Join-Path $root "dist\BLOCK++++-Vencord-1.15.9-Windows.zip"
 
 if (Test-Path -LiteralPath $stage) {
     Remove-Item -LiteralPath $stage -Recurse -Force
@@ -30,8 +30,8 @@ try {
 
     foreach ($item in @(
         @{ Source = "distribution\README.md"; Name = "README-DISTRIBUTION.md" },
-        @{ Source = "distribution\Install-TotalIgnore.bat"; Name = "Install-TotalIgnore.bat" },
-        @{ Source = "distribution\Uninstall-TotalIgnore.bat"; Name = "Uninstall-TotalIgnore.bat" }
+        @{ Source = "distribution\Install-BLOCK++++.bat"; Name = "Install-BLOCK++++.bat" },
+        @{ Source = "distribution\Uninstall-BLOCK++++.bat"; Name = "Uninstall-BLOCK++++.bat" }
     )) {
         Copy-Item -LiteralPath (Join-Path $root $item.Source) -Destination (Join-Path $stage $item.Name)
     }
@@ -62,7 +62,7 @@ try {
         }
 
         $relative = $file.FullName.Substring($distRoot.Length).TrimStart("\")
-        if ($relative -match "^(TotalIgnore-(Vencord-|Setup-|GitHub-Source-and-Release)|TotalIgnore-Publication-Repo|setup-payload|setup-assets)") {
+        if ($relative -match "^(BLOCK\+\+\+\+-(Vencord-|Setup-|GitHub-Source-and-Release)|TotalIgnore-(Vencord-|Setup-|GitHub-Source-and-Release)|TotalIgnore-Publication-Repo|setup-payload|setup-assets)") {
             continue
         }
 
@@ -76,12 +76,12 @@ try {
     try {
         $names = @($zip.Entries | ForEach-Object FullName)
         $required = @(
-            "TotalIgnore-Vencord-1.15.9-Windows/README-DISTRIBUTION.md",
-            "TotalIgnore-Vencord-1.15.9-Windows/Install-TotalIgnore.bat",
-            "TotalIgnore-Vencord-1.15.9-Windows/Uninstall-TotalIgnore.bat",
-            "TotalIgnore-Vencord-1.15.9-Windows/dist/Installer/VencordInstallerCli.exe",
-            "TotalIgnore-Vencord-1.15.9-Windows/dist/vencordDesktopRenderer.js",
-            "TotalIgnore-Vencord-1.15.9-Windows/source/src/plugins/totalIgnore/index.tsx"
+            "BLOCK++++-Vencord-1.15.9-Windows/README-DISTRIBUTION.md",
+            "BLOCK++++-Vencord-1.15.9-Windows/Install-BLOCK++++.bat",
+            "BLOCK++++-Vencord-1.15.9-Windows/Uninstall-BLOCK++++.bat",
+            "BLOCK++++-Vencord-1.15.9-Windows/dist/Installer/VencordInstallerCli.exe",
+            "BLOCK++++-Vencord-1.15.9-Windows/dist/vencordDesktopRenderer.js",
+            "BLOCK++++-Vencord-1.15.9-Windows/source/src/plugins/totalIgnore/index.tsx"
         )
         $missing = @($required | Where-Object { $_ -notin $names })
         if ($missing.Count) {
@@ -95,14 +95,14 @@ try {
             throw "Unexpected or private files in bundle: $($unsafe -join ', ')"
         }
 
-        $entry = $zip.GetEntry("TotalIgnore-Vencord-1.15.9-Windows/README-DISTRIBUTION.md")
+        $entry = $zip.GetEntry("BLOCK++++-Vencord-1.15.9-Windows/README-DISTRIBUTION.md")
         $reader = [IO.StreamReader]::new($entry.Open())
         try {
             $readme = $reader.ReadToEnd()
         } finally {
             $reader.Dispose()
         }
-        if (!$readme.Contains("TotalIgnore-Setup-1.1.18.exe")) {
+        if (!$readme.Contains("BLOCK++++-Setup-1.1.19.exe")) {
             throw "Bundle instructions do not link to the GUI setup"
         }
     } finally {

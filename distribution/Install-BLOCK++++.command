@@ -13,11 +13,12 @@ fi
 echo "Quit Discord completely, then press Return to continue (or Ctrl+C to cancel)."
 read -r
 
-if ! VENCORD_USER_DATA_DIR="$bundle_dir" VENCORD_DEV_INSTALL=1 "$installer" -uninstall -branch stable; then
+if ! VENCORD_USER_DATA_DIR="$bundle_dir" VENCORD_DEV_INSTALL=1 "$installer" -install -branch stable; then
     echo
-    echo "Uninstallation failed. Check the installer output above."
+    echo "Installation failed. Check the installer output above."
     exit 1
 fi
 
 echo
-echo "TotalIgnore by Dr. Avinash Mandre has been removed with Vencord from Discord Stable."
+echo "BLOCK++++ by Dr. Avinash Mandre is installed."
+echo "Start Discord and enable BLOCK++++ in User Settings > BLOCK++++ Settings > Plugins."

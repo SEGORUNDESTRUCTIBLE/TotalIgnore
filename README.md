@@ -1,8 +1,8 @@
-# TotalIgnore
+# BLOCK++++
 
 Created and published by **Dr. Avinash Mandre**.
 
-TotalIgnore is a Vencord plugin that locally filters selected Discord users
+BLOCK++++ is a Vencord plugin that locally filters selected Discord users
 from supported message, voice-member, call-tile, and screen-share UI surfaces.
 It can also locally mute ignored users in voice. This is a best-effort client
 modification; Discord still delivers presence and voice information to the
@@ -11,10 +11,10 @@ client, and this does not hide a user from Discord or other participants.
 ## Easy installation on Windows
 
 Exit Discord completely, including from the system tray, then download
-`TotalIgnore-Setup-1.1.18.exe` from the
+`BLOCK++++-Setup-1.1.19.exe` from the
 [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
 and follow the wizard. Setup checks that Discord is closed before changing
-files. It installs the complete Vencord build and TotalIgnore plugin into
+files. It installs the complete Vencord build and BLOCK++++ plugin into
 Discord Stable, without administrator privileges.
 If patching fails, the setup error dialog includes diagnostic output to share
 when asking for help.
@@ -24,10 +24,10 @@ Repair or reinstall Discord first if it will not start.
 
 Alternatively, use the ZIP bundle:
 
-Download and extract `dist/TotalIgnore-Vencord-1.15.9-Windows.zip`, close
-Discord, and run `Install-TotalIgnore.bat`. Start Discord and enable TotalIgnore
-in **User Settings → Vencord → Plugins**. The ZIP contains a complete Vencord
-desktop build with the plugin included, its installer, install/uninstall
+Download and extract `dist/BLOCK++++-Vencord-1.15.9-Windows.zip`, close
+Discord, and run `Install-BLOCK++++.bat`. Start Discord and enable BLOCK++++
+in **User Settings → BLOCK++++ Settings → Plugins**. The ZIP contains a
+complete Vencord desktop build with the plugin included, its installer, install/uninstall
 launchers, source snapshot, avatar, and applicable license notices.
 
 Uninstall the GUI setup from **Installed apps** in Windows; uninstalling removes
@@ -36,24 +36,24 @@ Vencord from Discord Stable and keeps Vencord's settings.
 ## Installation on macOS
 
 Download
-[`TotalIgnore-Vencord-1.15.9-macOS.zip`](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest/download/TotalIgnore-Vencord-1.15.9-macOS.zip)
+[`BLOCK++++-Vencord-1.15.9-macOS.zip`](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest/download/BLOCK++++-Vencord-1.15.9-macOS.zip)
 from the latest release and extract it. Quit Discord completely, then open
 Terminal in the extracted folder and run:
 
 ```sh
-./Install-TotalIgnore.command
+bash ./Install-BLOCK++++.command
 ```
 
-Start Discord and enable TotalIgnore in **User Settings → Vencord → Plugins**.
-To uninstall, quit Discord and run `./Uninstall-TotalIgnore.command`. This
-removes Vencord from Discord Stable and keeps Vencord's settings.
+Start Discord and enable BLOCK++++ in **User Settings → BLOCK++++ Settings → Plugins**.
+To uninstall, quit Discord and run `bash ./Uninstall-BLOCK++++.command`.
+This removes Vencord from Discord Stable and keeps Vencord's settings.
 
 The macOS bundle is an unsigned community build. Only run it if you trust this
 repository.
 
-Vencord is a prerequisite: TotalIgnore is a Vencord plugin, not a standalone
+Vencord is a prerequisite: BLOCK++++ is a Vencord plugin, not a standalone
 Discord extension. The all-in-one Windows bundle installs Vencord together
-with TotalIgnore. The setup wizard and ZIP are unofficial community builds.
+with BLOCK++++. The setup wizard and ZIP are unofficial community builds.
 Windows SmartScreen may warn that the executable is unsigned; only run a
 release downloaded from this repository.
 
@@ -65,14 +65,13 @@ that directory to `src/plugins/totalIgnore/`, build Vencord, and install it
 using Vencord's documented development workflow.
 
 The ready-to-install Windows setup executable and ZIP and macOS ZIP are in
-`dist/`. To add the macOS bundle to a published release, run the **Publish
-macOS bundle** workflow with its existing tag, such as `v1.1.18`.
+`dist/` and the latest GitHub release.
 
 Build the GUI setup with Inno Setup 6 after building the standalone Vencord
 bundle:
 
 ```powershell
-.\distribution\installer\Build-TotalIgnoreSetup.ps1
+.\distribution\installer\Build-BLOCK++++Setup.ps1
 ```
 
 ## Credits and license

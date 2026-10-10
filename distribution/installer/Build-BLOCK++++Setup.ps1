@@ -1,11 +1,11 @@
 $ErrorActionPreference = "Stop"
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$releaseZip = Join-Path $root "dist\TotalIgnore-Vencord-1.15.9-Windows.zip"
+$releaseZip = Join-Path $root "dist\BLOCK++++-Vencord-1.15.9-Windows.zip"
 $payloadRoot = Join-Path $root "dist\setup-payload"
 $assetRoot = Join-Path $root "dist\setup-assets"
-$payload = Join-Path $payloadRoot "TotalIgnore-Vencord-1.15.9-Windows"
-$output = Join-Path $root "dist\TotalIgnore-Setup-1.1.18.exe"
+$payload = Join-Path $payloadRoot "BLOCK++++-Vencord-1.15.9-Windows"
+$output = Join-Path $root "dist\BLOCK++++-Setup-1.1.19.exe"
 $compiler = Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"
 $avatarPath = Join-Path $root "src\plugins\totalIgnore\avatar.png"
 
@@ -250,7 +250,7 @@ try {
         $original.Dispose()
     }
 
-    & $compiler (Join-Path $PSScriptRoot "TotalIgnore.iss")
+    & $compiler (Join-Path $PSScriptRoot "BLOCK++++.iss")
     if ($LASTEXITCODE -ne 0) {
         throw "Inno Setup compilation failed with exit code $LASTEXITCODE"
     }

@@ -1,22 +1,22 @@
-#define AppVersion "1.1.18"
-#define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\TotalIgnore-Vencord-1.15.9-Windows"
+#define AppVersion "1.1.19"
+#define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\BLOCK++++-Vencord-1.15.9-Windows"
 #define AssetRoot AddBackslash(SourcePath) + "..\..\dist\setup-assets"
 
 [Setup]
 AppId={{DA2F8641-938C-4C14-B463-53958E56CF6A}
-AppName=TotalIgnore by Dr. Avinash Mandre
+AppName=BLOCK++++ by Dr. Avinash Mandre
 AppVersion={#AppVersion}
 AppPublisher=Dr. Avinash Mandre
 AppPublisherURL=https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore
 AppSupportURL=https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/issues
 DefaultDirName={localappdata}\Programs\TotalIgnore
-DefaultGroupName=TotalIgnore
+DefaultGroupName=BLOCK++++
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir=..\..\dist
-OutputBaseFilename=TotalIgnore-Setup-{#AppVersion}
+OutputBaseFilename=BLOCK++++-Setup-{#AppVersion}
 SetupIconFile={#AssetRoot}\TotalIgnore.ico
 WizardImageFile={#AssetRoot}\WizardSide.bmp
 WizardSmallImageFile={#AssetRoot}\WizardSmall.bmp
@@ -25,7 +25,7 @@ WizardSizePercent=100
 Compression=lzma2/ultra64
 SolidCompression=yes
 UninstallDisplayIcon={app}\TotalIgnore.ico
-UninstallDisplayName=TotalIgnore by Dr. Avinash Mandre
+UninstallDisplayName=BLOCK++++ by Dr. Avinash Mandre
 CloseApplications=yes
 RestartApplications=no
 DisableWelcomePage=no
@@ -36,18 +36,18 @@ DisableReadyPage=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
-WelcomeLabel1=Welcome to TotalIgnore
-WelcomeLabel2=Install the creator-branded Vencord build with TotalIgnore for Discord Stable.%n%nCreated by Dr. Avinash Mandre.
-FinishedHeadingLabel=TotalIgnore is ready
-FinishedLabel=Start Discord and enable TotalIgnore in User Settings > Vencord > Plugins.
+WelcomeLabel1=Welcome to BLOCK++++
+WelcomeLabel2=Install the creator-branded Vencord build with BLOCK++++ for Discord Stable.%n%nCreated by Dr. Avinash Mandre.
+FinishedHeadingLabel=BLOCK++++ is ready
+FinishedLabel=Start Discord and enable BLOCK++++ in User Settings > BLOCK++++ Settings > Plugins.
 
 [Files]
 Source: "{#SourceRoot}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#AssetRoot}\TotalIgnore.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\TotalIgnore on GitHub"; Filename: "https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore"
-Name: "{group}\Uninstall TotalIgnore"; Filename: "{uninstallexe}"
+Name: "{group}\BLOCK++++ on GitHub"; Filename: "https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore"
+Name: "{group}\Uninstall BLOCK++++"; Filename: "{uninstallexe}"
 
 [Code]
 function SetEnvironmentVariable(lpName, lpValue: string): Boolean;
@@ -65,7 +65,7 @@ begin
   OldDataDir := GetEnv('VENCORD_USER_DATA_DIR');
   OldDevInstall := GetEnv('VENCORD_DEV_INSTALL');
   InstallerPath := ExpandConstant('{app}\dist\Installer\VencordInstallerCli.exe');
-  LogPath := ExpandConstant('{tmp}\TotalIgnore-VencordInstaller.log');
+  LogPath := ExpandConstant('{tmp}\BLOCK++++-VencordInstaller.log');
   DeleteFile(LogPath);
   CommandLine :=
     '/D /S /C ""' + InstallerPath + '" ' + Parameters + ' -debug > "' + LogPath + '" 2>&1"';
@@ -91,7 +91,7 @@ var
   LogPath, LogText: string;
   LogContents: AnsiString;
 begin
-  LogPath := ExpandConstant('{tmp}\TotalIgnore-VencordInstaller.log');
+  LogPath := ExpandConstant('{tmp}\BLOCK++++-VencordInstaller.log');
   LogContents := '';
   if FileExists(LogPath) then
     LoadStringFromFile(LogPath, LogContents);
@@ -230,7 +230,7 @@ begin
   end;
 
   Result := MsgBox(
-    'This will remove Vencord from Discord Stable and uninstall TotalIgnore. Your Vencord settings are kept.',
+    'This will remove Vencord from Discord Stable and uninstall BLOCK++++. Your Vencord settings are kept.',
     mbConfirmation,
     MB_YESNO
   ) = IDYES;

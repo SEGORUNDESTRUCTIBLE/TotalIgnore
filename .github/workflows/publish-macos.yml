@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
         inputs:
             tag:
-                description: Existing TotalIgnore release tag to update
+                description: Existing BLOCK++++ release tag to update
                 required: true
                 type: string
 
@@ -46,11 +46,12 @@ jobs:
               working-directory: Vencord
               run: pnpm install --frozen-lockfile
 
-            - name: Build Vencord with TotalIgnore
+            - name: Build Vencord with BLOCK++++
               working-directory: Vencord
               run: |
                   mkdir -p src/plugins/totalIgnore
                   cp -R "$GITHUB_WORKSPACE/src/plugins/totalIgnore/." src/plugins/totalIgnore/
+                  node "$GITHUB_WORKSPACE/distribution/installer/Apply-BLOCK++++Branding.mjs" "$GITHUB_WORKSPACE/Vencord"
                   pnpm build --standalone
 
             - name: Download the macOS Vencord installer
@@ -70,4 +71,4 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   RELEASE_TAG: ${{ inputs.tag }}
               run: |
-                  gh release upload "$RELEASE_TAG" dist/TotalIgnore-Vencord-1.15.9-macOS.zip --clobber
+                  gh release upload "$RELEASE_TAG" dist/BLOCK++++-Vencord-1.15.9-macOS.zip --clobber

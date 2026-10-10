@@ -227,6 +227,7 @@ const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: {
 
 export default definePlugin({
     name: "TotalIgnore",
+    displayName: "BLOCK++++",
     description: "Hides selected users from supported Discord UI surfaces and locally mutes them in voice. Created by Dr. Avinash Mandre.",
     tags: ["Privacy", "Voice", "Appearance"],
     authors: [{ name: "Dr. Avinash Mandre", id: 0n }],
@@ -242,7 +243,7 @@ export default definePlugin({
             />
             <div>
                 <Forms.FormTitle tag="h3">Created by Dr. Avinash Mandre</Forms.FormTitle>
-                <Forms.FormText>TotalIgnore is an independent community plugin for Vencord.</Forms.FormText>
+                <Forms.FormText>BLOCK++++ is an independent community plugin for Vencord.</Forms.FormText>
             </div>
         </div>
     ),

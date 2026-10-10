@@ -4,9 +4,9 @@ set -euo pipefail
 repo_root="$(cd -- "$(dirname -- "$0")/../.." && pwd)"
 vencord_root="${1:?Pass the path to the Vencord checkout}"
 version="$(node -e 'console.log(require(process.argv[1]).version)' "$vencord_root/package.json")"
-stage_root="$(mktemp -d "${TMPDIR:-/tmp}/totalignore-macos.XXXXXX")"
-stage="$stage_root/TotalIgnore-Vencord-$version-macOS"
-archive="$repo_root/dist/TotalIgnore-Vencord-$version-macOS.zip"
+stage_root="$(mktemp -d "${TMPDIR:-/tmp}/blockplus-macos.XXXXXX")"
+stage="$stage_root/BLOCK++++-Vencord-$version-macOS"
+archive="$repo_root/dist/BLOCK++++-Vencord-$version-macOS.zip"
 
 cleanup() {
     rm -rf "$stage_root"
@@ -15,9 +15,9 @@ trap cleanup EXIT
 
 mkdir -p "$stage/dist" "$stage/source" "$repo_root/dist"
 cp "$repo_root/README.md" "$stage/README.md"
-cp "$repo_root/distribution/Install-TotalIgnore.command" "$stage/"
-cp "$repo_root/distribution/Uninstall-TotalIgnore.command" "$stage/"
-chmod +x "$stage/Install-TotalIgnore.command" "$stage/Uninstall-TotalIgnore.command"
+cp "$repo_root/distribution/Install-BLOCK++++.command" "$stage/"
+cp "$repo_root/distribution/Uninstall-BLOCK++++.command" "$stage/"
+chmod +x "$stage/Install-BLOCK++++.command" "$stage/Uninstall-BLOCK++++.command"
 
 for file in LICENSE README.md package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json eslint.config.mjs .editorconfig .gitattributes; do
     if [[ -f "$vencord_root/$file" ]]; then
@@ -54,6 +54,9 @@ rsync -a \
     --exclude='*-unpacked/' \
     --exclude='setup-payload/' \
     --exclude='setup-assets/' \
+    --exclude='TotalIgnore-Vencord-*-macOS.zip' \
+    --exclude='TotalIgnore-Vencord-*-Windows.zip' \
+    --exclude='TotalIgnore-Setup-*.exe' \
     --exclude='*.map' \
     --exclude='etag.txt' \
     --exclude='settings/' \
@@ -63,8 +66,8 @@ rsync -a \
 
 for required in \
     "$stage/README.md" \
-    "$stage/Install-TotalIgnore.command" \
-    "$stage/Uninstall-TotalIgnore.command" \
+    "$stage/Install-BLOCK++++.command" \
+    "$stage/Uninstall-BLOCK++++.command" \
     "$stage/dist/Installer/VencordInstallerCli-darwin" \
     "$stage/dist/vencordDesktopRenderer.js" \
     "$stage/source/src/plugins/totalIgnore/index.tsx" \
