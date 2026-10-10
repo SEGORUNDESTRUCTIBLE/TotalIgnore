@@ -1,18 +1,23 @@
 $ErrorActionPreference = "Stop"
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$releaseZip = Join-Path $root "dist\BLOCK++++-Vencord-1.15.9-Windows.zip"
+$releaseZip = Join-Path $root "dist\BLOCK++-Vencord-1.15.9-Windows.zip"
 $payloadRoot = Join-Path $root "dist\setup-payload"
 $assetRoot = Join-Path $root "dist\setup-assets"
-$payload = Join-Path $payloadRoot "BLOCK++++-Vencord-1.15.9-Windows"
-$output = Join-Path $root "dist\BLOCK++++-Setup-1.1.19.exe"
-$compiler = Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"
-$avatarPath = Join-Path $root "src\plugins\totalIgnore\avatar.png"
+$payload = Join-Path $payloadRoot "BLOCK++-Vencord-1.15.9-Windows"
+$output = Join-Path $root "dist\BLOCK++-Setup-1.1.19.exe"
+$compilerCandidates = @(
+    (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),
+    (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+    (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+)
+$compiler = $compilerCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+$avatarPath = Join-Path $root "src\plugins\blockPlusPlus\avatar.png"
 
 if (!(Test-Path -LiteralPath $releaseZip)) {
     throw "The current Windows release package is missing: $releaseZip"
 }
-if (!(Test-Path -LiteralPath $compiler)) {
+if (!$compiler) {
     throw "Inno Setup compiler is missing: $compiler"
 }
 if (!(Test-Path -LiteralPath $avatarPath)) {
@@ -35,8 +40,8 @@ try {
         "dist\Installer\VencordInstallerCli.exe",
         "dist\patcher.js",
         "dist\vencordDesktopRenderer.js",
-        "source\src\plugins\totalIgnore\index.tsx",
-        "source\src\plugins\totalIgnore\avatar.png",
+        "source\src\plugins\blockPlusPlus\index.tsx",
+        "source\src\plugins\blockPlusPlus\avatar.png",
         "source\LICENSE"
     )) {
         $path = Join-Path $payload $requiredFile
@@ -48,7 +53,7 @@ try {
     Add-Type -AssemblyName System.Drawing
     $original = [System.Drawing.Image]::FromFile($avatarPath)
     try {
-        $iconPath = Join-Path $assetRoot "TotalIgnore.ico"
+        $iconPath = Join-Path $assetRoot "BLOCK++.ico"
         $iconSizes = @(16, 24, 32, 48, 64, 128, 256)
         $iconFrames = [System.Collections.Generic.List[byte[]]]::new()
         foreach ($size in $iconSizes) {
@@ -207,7 +212,7 @@ try {
                     $font = [System.Drawing.Font]::new("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
                     $creditBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::White)
                     try {
-                        $sideGraphics.DrawString("TOTALIGNORE", $font, $creditBrush, 16, 252)
+                        $sideGraphics.DrawString("BLOCK++", $font, $creditBrush, 16, 252)
                     } finally {
                         $creditBrush.Dispose()
                         $font.Dispose()
@@ -250,7 +255,7 @@ try {
         $original.Dispose()
     }
 
-    & $compiler (Join-Path $PSScriptRoot "BLOCK++++.iss")
+    & $compiler (Join-Path $PSScriptRoot "BLOCK++.iss")
     if ($LASTEXITCODE -ne 0) {
         throw "Inno Setup compilation failed with exit code $LASTEXITCODE"
     }

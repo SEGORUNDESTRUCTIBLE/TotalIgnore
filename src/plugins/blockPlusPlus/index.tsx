@@ -17,35 +17,40 @@
 */
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { definePluginSettings } from "@api/Settings";
+import { definePluginSettings, migratePluginSetting, migratePluginSettings } from "@api/Settings";
 import definePlugin, { OptionType } from "@utils/types";
 import type { Message, User } from "@vencord/discord-types";
 import { findByPropsLazy } from "@webpack";
 import { CallStore, ChannelRTCStore, ChannelStore, Forms, GuildMemberStore, MediaEngineStore, Menu, UserStore, VoiceStateStore } from "@webpack/common";
 import creatorAvatar from "file://./avatar.png?base64";
 
+migratePluginSettings("BLOCK++", "TotalIgnore", "BLOCK++++");
+migratePluginSetting("BLOCK++", "userIds", "blockedUserIds");
+migratePluginSetting("BLOCK++", "muteVoice", "blockVoice");
+migratePluginSetting("BLOCK++", "muteStateSnapshot", "blockMuteStateSnapshot");
+
 const VoiceActions = findByPropsLazy("toggleLocalMute");
 
 const settings = definePluginSettings({
-    userIds: {
-        description: "User IDs to ignore, separated by commas, spaces, or new lines",
+    blockedUserIds: {
+        description: "User IDs to block, separated by commas, spaces, or new lines",
         type: OptionType.STRING,
         default: "",
         multiline: true,
         placeholder: "123456789012345678",
         onChange() {
             notifyParticipantStores();
-            syncIgnoredVoiceMutes();
+            syncBlockedVoiceMutes();
         }
     },
-    muteVoice: {
-        description: "Locally mute ignored users while they are in voice",
+    blockVoice: {
+        description: "Locally mute blocked users while they are in voice",
         type: OptionType.BOOLEAN,
         default: true,
-        onChange: syncIgnoredVoiceMutes
+        onChange: syncBlockedVoiceMutes
     },
-    muteStateSnapshot: {
-        description: "Saved local mute states for ignored users",
+    blockMuteStateSnapshot: {
+        description: "Saved local mute states for blocked users",
         type: OptionType.STRING,
         default: "",
         hidden: true
@@ -62,7 +67,7 @@ function setLocalMute(userId: string, muted: boolean) {
 
 function getMuteStateSnapshots() {
     const snapshots = new Map<string, boolean>();
-    for (const entry of settings.store.muteStateSnapshot.split(",")) {
+    for (const entry of settings.store.blockMuteStateSnapshot.split(",")) {
         const match = /^(\d{17,20}):([01])$/.exec(entry);
         if (match) snapshots.set(match[1], match[2] === "1");
     }
@@ -70,12 +75,12 @@ function getMuteStateSnapshots() {
 }
 
 function saveMuteStateSnapshots(snapshots: Map<string, boolean>) {
-    settings.store.muteStateSnapshot = Array.from(snapshots, ([userId, muted]) => `${userId}:${Number(muted)}`).join(",");
+    settings.store.blockMuteStateSnapshot = Array.from(snapshots, ([userId, muted]) => `${userId}:${Number(muted)}`).join(",");
 }
 
-function getIgnoredUserIds() {
+function getBlockedUserIds() {
     return new Set(
-        settings.store.userIds
+        settings.store.blockedUserIds
             .split(/[,\s]+/)
             .map(id => id.trim())
             .filter(id => /^\d{17,20}$/.test(id))
@@ -90,11 +95,11 @@ function getCallTileSelector(tileId: string) {
     return `[data-selenium-video-tile="${escapeCssString(tileId)}"]`;
 }
 
-function getIgnoredCallTileIds(ignoredUserIds: string[]) {
-    const ignoredIds = new Set(ignoredUserIds);
+function getBlockedCallTileIds(blockedUserIds: string[]) {
+    const blockedIds = new Set(blockedUserIds);
     const channelIds = new Set<string>();
 
-    for (const userId of ignoredUserIds) {
+    for (const userId of blockedUserIds) {
         const channelId = VoiceStateStore.getVoiceStateForUser(userId)?.channelId;
         if (channelId) channelIds.add(channelId);
     }
@@ -102,10 +107,10 @@ function getIgnoredCallTileIds(ignoredUserIds: string[]) {
     for (const call of CallStore.getCalls())
         channelIds.add(call.channelId);
 
-    const tileIds = new Set(ignoredUserIds);
+    const tileIds = new Set(blockedUserIds);
     for (const channelId of channelIds) {
         for (const participant of ChannelRTCStore.getStreamParticipants(channelId)) {
-            if (!ignoredIds.has(participant.stream.ownerId)) continue;
+            if (!blockedIds.has(participant.stream.ownerId)) continue;
 
             tileIds.add(participant.id);
             if (participant.streamId) tileIds.add(participant.streamId);
@@ -115,18 +120,18 @@ function getIgnoredCallTileIds(ignoredUserIds: string[]) {
     return Array.from(tileIds);
 }
 
-function updateIgnoreStyles() {
+function updateBlockStyles() {
     if (!styleElement) return;
 
-    const ignoredUserIds = Array.from(getIgnoredUserIds());
-    const ignoredCallTileIds = getIgnoredCallTileIds(ignoredUserIds);
+    const blockedUserIds = Array.from(getBlockedUserIds());
+    const blockedCallTileIds = getBlockedCallTileIds(blockedUserIds);
     const selectors = [
-        ...ignoredCallTileIds.flatMap(tileId => [
+        ...blockedCallTileIds.flatMap(tileId => [
             getCallTileSelector(tileId),
             `[class*="wrapper__"]:has(${getCallTileSelector(tileId)})`,
             `[class*="tile_d6271c"]:has(${getCallTileSelector(tileId)})`
         ]),
-        ...ignoredUserIds.flatMap(userId => {
+        ...blockedUserIds.flatMap(userId => {
             const user = UserStore.getUser(userId);
             const voiceState = VoiceStateStore.getVoiceStateForUser(userId);
             const guildId = voiceState?.guildId ?? (voiceState?.channelId
@@ -152,22 +157,22 @@ function updateIgnoreStyles() {
 }
 
 function notifyParticipantStores() {
-    updateIgnoreStyles();
+    updateBlockStyles();
     ChannelRTCStore.emitChange();
     VoiceStateStore.emitChange();
 }
 
-function syncIgnoredVoiceMutes() {
-    if (!settings.store.muteVoice) {
-        restoreMutedUsers();
+function syncBlockedVoiceMutes() {
+    if (!settings.store.blockVoice) {
+        restoreBlockedUsers();
         return;
     }
 
-    const ignoredUsers = getIgnoredUserIds();
+    const blockedUsers = getBlockedUserIds();
     const snapshots = getMuteStateSnapshots();
 
     for (const [userId, wasMuted] of mutedUsers) {
-        if (!ignoredUsers.has(userId)) {
+        if (!blockedUsers.has(userId)) {
             setLocalMute(userId, wasMuted);
             mutedUsers.delete(userId);
             snapshots.delete(userId);
@@ -175,13 +180,13 @@ function syncIgnoredVoiceMutes() {
     }
 
     for (const [userId, wasMuted] of snapshots) {
-        if (ignoredUsers.has(userId)) continue;
+        if (blockedUsers.has(userId)) continue;
 
         setLocalMute(userId, wasMuted);
         snapshots.delete(userId);
     }
 
-    for (const userId of ignoredUsers) {
+    for (const userId of blockedUsers) {
         if (!mutedUsers.has(userId)) {
             const wasMuted = snapshots.get(userId) ?? MediaEngineStore.isLocalMute(userId);
             mutedUsers.set(userId, wasMuted);
@@ -194,40 +199,39 @@ function syncIgnoredVoiceMutes() {
     saveMuteStateSnapshots(snapshots);
 }
 
-function restoreMutedUsers() {
+function restoreBlockedUsers() {
     for (const [userId, wasMuted] of mutedUsers) {
         setLocalMute(userId, wasMuted);
     }
     mutedUsers.clear();
-    settings.store.muteStateSnapshot = "";
+    settings.store.blockMuteStateSnapshot = "";
 }
 
-function toggleIgnoredUser(userId: string) {
-    const ignoredUsers = getIgnoredUserIds();
-    if (ignoredUsers.has(userId)) ignoredUsers.delete(userId);
-    else ignoredUsers.add(userId);
+function toggleBlockedUser(userId: string) {
+    const blockedUsers = getBlockedUserIds();
+    if (blockedUsers.has(userId)) blockedUsers.delete(userId);
+    else blockedUsers.add(userId);
 
-    settings.store.userIds = Array.from(ignoredUsers).join(", ");
+    settings.store.blockedUserIds = Array.from(blockedUsers).join(", ");
     notifyParticipantStores();
-    syncIgnoredVoiceMutes();
+    syncBlockedVoiceMutes();
 }
 
 const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: { user: User; }) => {
     if (!user || user.id === UserStore.getCurrentUser()?.id) return;
 
-    const isIgnored = getIgnoredUserIds().has(user.id);
+    const isBlocked = getBlockedUserIds().has(user.id);
     children.push(
         <Menu.MenuItem
-            id="vc-total-ignore-toggle"
-            label={isIgnored ? "Stop ignoring user" : "Ignore user"}
-            action={() => toggleIgnoredUser(user.id)}
+            id="vc-block-plus-plus-toggle"
+            label={isBlocked ? "Unblock user" : "Block user"}
+            action={() => toggleBlockedUser(user.id)}
         />
     );
 };
 
 export default definePlugin({
-    name: "TotalIgnore",
-    displayName: "BLOCK++++",
+    name: "BLOCK++",
     description: "Hides selected users from supported Discord UI surfaces and locally mutes them in voice. Created by Dr. Avinash Mandre.",
     tags: ["Privacy", "Voice", "Appearance"],
     authors: [{ name: "Dr. Avinash Mandre", id: 0n }],
@@ -243,7 +247,7 @@ export default definePlugin({
             />
             <div>
                 <Forms.FormTitle tag="h3">Created by Dr. Avinash Mandre</Forms.FormTitle>
-                <Forms.FormText>BLOCK++++ is an independent community plugin for Vencord.</Forms.FormText>
+                <Forms.FormText>BLOCK++ is an independent community plugin for Vencord.</Forms.FormText>
             </div>
         </div>
     ),
@@ -253,14 +257,14 @@ export default definePlugin({
             find: '"MessageStore"',
             replacement: {
                 match: /(?<=MESSAGE_CREATE:function\((\i)\){)/,
-                replace: (_, props) => `if($self.shouldIgnoreMessage(${props}.message))return;`
+                replace: (_, props) => `if($self.shouldBlockMessage(${props}.message))return;`
             }
         },
         {
             find: '"ReadStateStore"',
             replacement: {
                 match: /(?<=MESSAGE_CREATE:function\((\i)\){)/,
-                replace: (_, props) => `if($self.shouldIgnoreMessage(${props}.message))return;`
+                replace: (_, props) => `if($self.shouldBlockMessage(${props}.message))return;`
             }
         },
     ],
@@ -271,88 +275,88 @@ export default definePlugin({
 
     flux: {
         VOICE_STATE_UPDATES() {
-            updateIgnoreStyles();
-            syncIgnoredVoiceMutes();
+            updateBlockStyles();
+            syncBlockedVoiceMutes();
         },
         GUILD_MEMBER_UPDATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         GUILD_MEMBER_LIST_UPDATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         CALL_CREATE() {
-            updateIgnoreStyles();
-            syncIgnoredVoiceMutes();
+            updateBlockStyles();
+            syncBlockedVoiceMutes();
         },
         CALL_UPDATE() {
-            updateIgnoreStyles();
-            syncIgnoredVoiceMutes();
+            updateBlockStyles();
+            syncBlockedVoiceMutes();
         },
         CALL_DELETE() {
-            updateIgnoreStyles();
-            syncIgnoredVoiceMutes();
+            updateBlockStyles();
+            syncBlockedVoiceMutes();
         },
         RTC_CONNECTION_ROSTER_MAP_UPDATE() {
-            updateIgnoreStyles();
-            syncIgnoredVoiceMutes();
+            updateBlockStyles();
+            syncBlockedVoiceMutes();
         },
         RTC_CONNECTION_STATE() {
-            updateIgnoreStyles();
-            syncIgnoredVoiceMutes();
+            updateBlockStyles();
+            syncBlockedVoiceMutes();
         },
         STREAM_CREATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_UPDATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_DELETE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_START() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_STOP() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAMING_UPDATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_SERVER_UPDATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_LAYOUT_UPDATE() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_UPDATE_SELF_HIDDEN() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         STREAM_SET_PAUSED() {
-            updateIgnoreStyles();
+            updateBlockStyles();
         },
         RTC_CONNECTION_CLIENT_CONNECT() {
-            syncIgnoredVoiceMutes();
+            syncBlockedVoiceMutes();
         }
     },
 
     start() {
         styleElement = document.createElement("style");
         document.head.appendChild(styleElement);
-        updateIgnoreStyles();
-        syncIgnoredVoiceMutes();
+        updateBlockStyles();
+        syncBlockedVoiceMutes();
     },
 
     stop() {
         styleElement?.remove();
         styleElement = undefined;
-        restoreMutedUsers();
+        restoreBlockedUsers();
     },
 
-    shouldIgnoreMessage(message: Message | undefined) {
-        return message?.author?.id != null && getIgnoredUserIds().has(message.author.id);
+    shouldBlockMessage(message: Message | undefined) {
+        return message?.author?.id != null && getBlockedUserIds().has(message.author.id);
     },
 
-    shouldIgnoreUser(userId: string | undefined) {
-        return userId != null && getIgnoredUserIds().has(userId);
+    shouldBlockUser(userId: string | undefined) {
+        return userId != null && getBlockedUserIds().has(userId);
     }
 });

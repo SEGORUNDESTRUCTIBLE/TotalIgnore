@@ -16,15 +16,16 @@ if errorlevel 2 exit /b 1
 
 set "VENCORD_USER_DATA_DIR=%BUNDLE_DIR%"
 set "VENCORD_DEV_INSTALL=1"
-"%INSTALLER%" -uninstall -branch stable
+"%INSTALLER%" -install -branch stable
 if errorlevel 1 (
     echo.
-    echo Uninstallation failed. Check the installer output above.
+    echo Installation failed. Check the installer output above.
     pause
     exit /b 1
 )
 
 echo.
-echo BLOCK++++ by Dr. Avinash Mandre has been removed with Vencord
-echo from Discord Stable.
+echo BLOCK++ by Dr. Avinash Mandre is installed.
+echo Start Discord and enable BLOCK++ in
+echo User Settings -^> BLOCK++ Settings -^> Plugins.
 pause

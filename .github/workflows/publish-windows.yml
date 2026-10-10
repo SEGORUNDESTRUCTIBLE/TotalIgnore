@@ -1,0 +1,87 @@
+name: Build and publish BLOCK++ Windows release
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: Release version without a v prefix
+                required: true
+                default: "1.1.19"
+                type: string
+
+permissions:
+    contents: write
+
+jobs:
+    Publish:
+        if: github.repository == 'SEGORUNDESTRUCTIBLE/TotalIgnore'
+        runs-on: windows-2022
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: actions/checkout@v7
+              with:
+                  repository: Vendicated/Vencord
+                  ref: v1.15.9
+                  path: Vencord
+
+            - uses: pnpm/action-setup@v6
+              with:
+                  version: 11.9.0
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: pnpm
+                  cache-dependency-path: Vencord/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: Vencord
+              run: pnpm install --frozen-lockfile
+
+            - name: Build Vencord with BLOCK++
+              working-directory: Vencord
+              shell: pwsh
+              run: |
+                  Copy-Item "$env:GITHUB_WORKSPACE\src\plugins\blockPlusPlus" "src\plugins\blockPlusPlus" -Recurse
+                  node "$env:GITHUB_WORKSPACE\distribution\installer\Apply-BLOCK++Branding.mjs" "$env:GITHUB_WORKSPACE\Vencord"
+                  pnpm build --standalone
+
+            - name: Download the Windows Vencord installer
+              working-directory: Vencord
+              run: |
+                  New-Item -ItemType Directory -Path dist\Installer -Force | Out-Null
+                  Invoke-WebRequest `
+                    -Uri https://github.com/Vencord/Installer/releases/latest/download/VencordInstallerCli.exe `
+                    -OutFile dist\Installer\VencordInstallerCli.exe
+              shell: pwsh
+
+            - name: Package Windows bundle and setup
+              shell: pwsh
+              run: |
+                  Copy-Item "$env:GITHUB_WORKSPACE\distribution" "$env:GITHUB_WORKSPACE\Vencord\distribution" -Recurse
+                  & "$env:GITHUB_WORKSPACE\Vencord\distribution\installer\Build-WindowsBundle.ps1"
+                  if ($LASTEXITCODE -ne 0) { throw "Windows bundle build failed" }
+                  & "$env:GITHUB_WORKSPACE\Vencord\distribution\installer\Build-BLOCK++Setup.ps1"
+                  if ($LASTEXITCODE -ne 0) { throw "BLOCK++ setup build failed" }
+
+            - name: Publish release with installer
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  RELEASE_VERSION: ${{ inputs.version }}
+              shell: pwsh
+              run: |
+                  if ($env:RELEASE_VERSION -ne "1.1.19") {
+                      throw "This installer build is version 1.1.19; use release version 1.1.19"
+                  }
+                  $tag = "v$env:RELEASE_VERSION"
+                  $dist = "$env:GITHUB_WORKSPACE\Vencord\dist"
+                  gh release create $tag `
+                    "$dist\BLOCK++-Setup-1.1.19.exe" `
+                    "$dist\BLOCK++-Vencord-1.15.9-Windows.zip" `
+                    --target "$env:GITHUB_SHA" `
+                    --title "BLOCK++ $env:RELEASE_VERSION" `
+                    --notes "BLOCK++ community release for Discord Stable. This unofficial Vencord-based build includes the BLOCK++ plugin. See the repository README for install and safety details."
+                  if ($LASTEXITCODE -ne 0) { throw "GitHub release creation failed" }
