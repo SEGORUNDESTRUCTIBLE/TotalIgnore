@@ -1,4 +1,4 @@
-#define AppVersion "1.1.19"
+#define AppVersion "1.1.20"
 #define SourceRoot AddBackslash(SourcePath) + "..\..\dist\setup-payload\BLOCK++-Vencord-1.15.9-Windows"
 #define AssetRoot AddBackslash(SourcePath) + "..\..\dist\setup-assets"
 

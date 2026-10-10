@@ -11,7 +11,7 @@ client, and this does not hide a user from Discord or other participants.
 ## Easy installation on Windows
 
 Exit Discord completely, including from the system tray, then download
-`BLOCK++-Setup-1.1.19.exe` from the
+`BLOCK++-Setup-1.1.20.exe` from the
 [latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
 and follow the wizard. Setup checks that Discord is closed before changing
 files. It installs the complete Vencord build and BLOCK++ plugin into
@@ -33,31 +33,10 @@ launchers, source snapshot, avatar, and applicable license notices.
 Uninstall the GUI setup from **Installed apps** in Windows; uninstalling removes
 Vencord from Discord Stable and keeps Vencord's settings.
 
-## Installation on macOS
+## macOS
 
-Download `BLOCK++-Vencord-1.15.9-macOS.zip` from the
-[latest GitHub release](https://github.com/SEGORUNDESTRUCTIBLE/TotalIgnore/releases/latest)
-and extract it. Quit Discord completely, open Terminal in the extracted folder,
-and run:
-
-```sh
-bash ./Install-BLOCK++.command
-```
-
-The included Vencord installer installs Vencord into Discord Stable. Start
-Discord and enable BLOCK++ in **User Settings → BLOCK++ Settings → Plugins**.
-To remove it, quit Discord and run
-`bash ./Uninstall-BLOCK++.command`. This removes Vencord from Discord
-Stable and keeps Vencord's settings.
-
-The macOS ZIP is an unsigned community build. macOS may ask you to confirm
-before running the installer; only run a copy downloaded from this project's
-official release page.
-
-To prepare a release, run the **Publish macOS bundle** workflow with the same
-version tag (for example, `v1.15.9`) before publishing the GitHub release. It
-creates or updates a draft release with the macOS ZIP attached. Add any other
-release files, then publish the draft so users can download them.
+The v1.1.20 release includes Windows assets only; it does not include a
+BLOCK++ macOS bundle.
 
 Vencord is a prerequisite: BLOCK++ is a Vencord plugin, not a standalone
 Discord extension. The all-in-one Windows bundle installs Vencord together
@@ -72,9 +51,7 @@ The plugin source and supplied creator avatar are in
 that directory to `src/plugins/blockPlusPlus/`, build Vencord, and install it
 using Vencord's documented development workflow.
 
-The ready-to-install Windows setup executable and ZIP and the macOS ZIP are in
-`dist/`. The macOS bundle build script is
-`distribution/installer/Build-MacBundle.sh`.
+The ready-to-install Windows setup executable and ZIP are in `dist/`.
 
 Build the GUI setup with Inno Setup 6 after building the standalone Vencord
 bundle:

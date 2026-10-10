@@ -102,7 +102,7 @@ try {
         } finally {
             $reader.Dispose()
         }
-        if (!$readme.Contains("BLOCK++-Setup-1.1.19.exe")) {
+        if (!$readme.Contains("BLOCK++-Setup-1.1.20.exe")) {
             throw "Bundle instructions do not link to the GUI setup"
         }
     } finally {

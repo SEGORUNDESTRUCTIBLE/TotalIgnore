@@ -16,6 +16,5 @@ draggable wrapper so the sidebar list collapses the row instead of reserving
 an empty slot.
 
 This is best-effort client-side filtering, not true invisibility. Discord still
-delivers voice and presence information to the client. Existing messages,
-notifications, and UI surfaces whose markup differs may still reveal a
-blocked user.
+delivers voice and presence information to the client. existing messages, notifications, and UI surfaces whose markup differs may
+still reveal a blocked user.

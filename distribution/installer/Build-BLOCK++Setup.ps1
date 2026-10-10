@@ -5,7 +5,7 @@ $releaseZip = Join-Path $root "dist\BLOCK++-Vencord-1.15.9-Windows.zip"
 $payloadRoot = Join-Path $root "dist\setup-payload"
 $assetRoot = Join-Path $root "dist\setup-assets"
 $payload = Join-Path $payloadRoot "BLOCK++-Vencord-1.15.9-Windows"
-$output = Join-Path $root "dist\BLOCK++-Setup-1.1.19.exe"
+$output = Join-Path $root "dist\BLOCK++-Setup-1.1.20.exe"
 $compilerCandidates = @(
     (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),
     (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),

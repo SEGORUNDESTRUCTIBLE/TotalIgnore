@@ -6,7 +6,7 @@ on:
             version:
                 description: Release version without a v prefix
                 required: true
-                default: "1.1.19"
+                default: "1.1.20"
                 type: string
 
 permissions:
@@ -71,15 +71,15 @@ jobs:
                   RELEASE_VERSION: ${{ inputs.version }}
               shell: pwsh
               run: |
-                  if ($env:RELEASE_VERSION -ne "1.1.19") {
-                      throw "This installer build is version 1.1.19; use release version 1.1.19"
+                  if ($env:RELEASE_VERSION -ne "1.1.20") {
+                      throw "This installer build is version 1.1.20; use release version 1.1.20"
                   }
                   $tag = "v$env:RELEASE_VERSION"
                   $dist = "$env:GITHUB_WORKSPACE\Vencord\dist"
                   gh release create $tag `
-                    "$dist\BLOCK++-Setup-1.1.19.exe" `
+                    "$dist\BLOCK++-Setup-1.1.20.exe" `
                     "$dist\BLOCK++-Vencord-1.15.9-Windows.zip" `
                     --target "$env:GITHUB_SHA" `
                     --title "BLOCK++ $env:RELEASE_VERSION" `
-                    --notes "BLOCK++ community release for Discord Stable. This unofficial Vencord-based build includes the BLOCK++ plugin. See the repository README for install and safety details."
+                    --notes "BLOCK++ community release for Discord Stable. This release preserves the selected 1.1.18 plugin behavior under the BLOCK++ branding. This unofficial Vencord-based build is not affiliated with Discord or Vencord. See the repository README for install and safety details."
                   if ($LASTEXITCODE -ne 0) { throw "GitHub release creation failed" }
