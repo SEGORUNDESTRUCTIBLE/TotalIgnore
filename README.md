@@ -27,8 +27,9 @@ Alternatively, use the ZIP bundle:
 Download and extract `dist/BLOCK++++-Vencord-1.15.9-Windows.zip`, close
 Discord, and run `Install-BLOCK++++.bat`. Start Discord and enable BLOCK++++
 in **User Settings → BLOCK++++ Settings → Plugins**. The ZIP contains a
-complete Vencord desktop build with the plugin included, its installer, install/uninstall
-launchers, source snapshot, avatar, and applicable license notices.
+complete Vencord desktop build with the plugin included, its installer,
+install/uninstall launchers, source snapshot, avatar, and applicable license
+notices.
 
 Uninstall the GUI setup from **Installed apps** in Windows; uninstalling removes
 Vencord from Discord Stable and keeps Vencord's settings.
